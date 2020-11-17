@@ -758,6 +758,13 @@ bin_list = ['1.1.1',
 path = 'lx02.txt'
 
 
+def default_dict_creation(list_name):
+    default_dict = defaultdict(list)
+    for k, v in list_name:
+        default_dict[k].append(v)
+    return dict(default_dict)
+
+
 class BinNotFound(Exception):
 
     def __init__(self):
@@ -797,35 +804,26 @@ class MapCreator:
 
     def _dictionary(self):
         self._reader()
-        d = defaultdict(list)
-        for key, value in self.container:
-            d[key].append(value)
-        self.dict = dict(d)
+        self.dict = default_dict_creation(self.container)
 
 
 class_1 = MapCreator(path)
 class_1._dictionary()
 
-# def is_eq(x):
-#     return x[0] == x[0]
-
-dict_test = {}
-# pprint(class_1.dict)
 for key, val_tuple in class_1.dict.items():
-    c = defaultdict(list)
-    for k, v in val_tuple:
-        c[k].append(v)
-    class_1.dict[key] = dict(c)
+    class_1.dict[key] = default_dict_creation(val_tuple)
 
+pprint(class_1.dict)
 
-for material, bin_dict in class_1.dict.items():
-    for bin_und, value_und in bin_dict.items():
-        date_quan = {x[1] for x in value_und}
+for material_code, bin_name in class_1.dict.items():
+    for bin_name_as_key, bin_value in bin_name.items():
+        date_quan = {x[1] for x in bin_value}
+        bin_value_list = []
         for date in date_quan:
-            quantity = sum([int(x[0]) for x in value_und if x[1] == date])
-            print(material, bin_und, quantity, date)
-        # else:
-        #     summ = sum([int(x[0]) for x in value_und])
-        # print(material, bin_und, summ, )
+            quantity = sum([int(x[0]) for x in bin_value if x[1] == date])
+            bin_value_list.append((quantity, date))
+        bin_name[bin_name_as_key] = bin_value_list
+        # print(bin_name[bin_name_as_key])
+        # print(material_code, bin_name_as_key, quantity, date)
 
-# pprint(class_1.dict)
+pprint(class_1.dict)
