@@ -816,7 +816,16 @@ for key, val_tuple in class_1.dict.items():
     for k, v in val_tuple:
         c[k].append(v)
     class_1.dict[key] = dict(c)
-pprint(class_1.dict)
-#     summ = sum([int(x[1]) for x in value])
-#
-#     print(key, summ)
+
+
+for material, bin_dict in class_1.dict.items():
+    for bin_und, value_und in bin_dict.items():
+        date_quan = {x[1] for x in value_und}
+        for date in date_quan:
+            quantity = sum([int(x[0]) for x in value_und if x[1] == date])
+            print(material, bin_und, quantity, date)
+        # else:
+        #     summ = sum([int(x[0]) for x in value_und])
+        # print(material, bin_und, summ, )
+
+# pprint(class_1.dict)
