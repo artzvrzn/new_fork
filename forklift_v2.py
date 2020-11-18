@@ -2,6 +2,8 @@ from pprint import pprint
 from collections import defaultdict
 from functools import reduce
 
+from termcolor import cprint
+
 new_list = ['1908201',
             '1612708',
             '821502',
@@ -765,6 +767,19 @@ def default_dict_creation(list_name):
     return dict(default_dict)
 
 
+def tuple_to_int(tuple):
+    result = int(''.join((str(tuple[0]), f'{(tuple[1]):0>5}')))
+    return result
+
+def chat(string):
+    while True:
+        try:
+            answer = int(input(string))
+        except ValueError:
+            continue
+        return answer
+
+
 class BinNotFound(Exception):
 
     def __init__(self):
@@ -781,6 +796,7 @@ class MapCreator:
         self.path = path
         self.dict = {}
         self.container = []
+        self._reader()
 
     def _reader(self):
         with open(self.path, 'r', encoding='utf8') as lx02:
@@ -795,7 +811,8 @@ class MapCreator:
         bin_pos = line[5]
         date = line[6][:-1]
         quantity = line[4].split(' ')[-1:][0]  # splits and returns the last elem as member of list
-        date_reversed = '.'.join((date[-4:], date[-7:-5], date[-10:-8]))  # as the only member so [0]
+        date_reversed = int(''.join((date[-4:], date[-7:-5], date[-10:-8])))  # as the only member so [0]
+        # print(date_reversed)
         if bin_pos in bin_list:
             pass
         else:
@@ -803,27 +820,80 @@ class MapCreator:
         self.container.append((material, (bin_pos, (quantity, date_reversed))))
 
     def _dictionary(self):
-        self._reader()
         self.dict = default_dict_creation(self.container)
+        for key, val_tuple in self.dict.items():
+            self.dict[key] = default_dict_creation(val_tuple)
+
+    def return_data(self):
+        self._dictionary()
+        for material_code, bin_name in self.dict.items():
+            for bin_name_as_key, bin_value in bin_name.items():
+                date_quan = {x[1] for x in bin_value}
+                bin_value_list = []
+                for date in date_quan:
+                    quantity = sum([int(x[0]) for x in bin_value if x[1] == date])
+                    bin_value_list.append((quantity, date))
+                bin_name[bin_name_as_key] = bin_value_list
+        return self.dict
+
+    def return_data_v2(self):
+        self._dictionary()
+        for material_code, bin_name in self.dict.items():
+            for bin_name_as_key, bin_value in bin_name.items():
+                date_quan = {x[1] for x in bin_value}
+                bin_value_list = []
+                date = 0
+                if len(date_quan) == 2:
+                    if max(date_quan) - min(date_quan) == abs(1):
+                        date = int(max(date_quan))
+                    else:
+                        date = int(max(date_quan))
+                        print(f'Что-то не так, но все равно {material_code, bin_name_as_key, date_quan}')
+                elif len(date_quan) > 2:
+                    date = max(date_quan)
+                    #TODO
+                    # while True:
+                    #     date = chat(f'{material_code, bin_name_as_key}3 и более дат в массиве. выбери одну из них {date_quan}')
+                    #     if date in date_quan:
+                    #         break
+                    #     else:
+                    #         continue
+                else:
+                    date = int(date_quan.pop())
+                quantity = sum([int(x[0]) for x in bin_value])
+                # bin_name[bin_name_as_key] = (quantity, date)
+                bin_name[bin_name_as_key] = tuple_to_int((date, quantity))
+                # bin_value_list.append((quantity, date))
+                print(material_code, bin_name_as_key, quantity, date)
+                # bin_name[bin_name_as_key] = bin_value_list
+        return self.dict
 
 
-class_1 = MapCreator(path)
-class_1._dictionary()
 
-for key, val_tuple in class_1.dict.items():
-    class_1.dict[key] = default_dict_creation(val_tuple)
 
-pprint(class_1.dict)
+dictionary = MapCreator(path)
 
-for material_code, bin_name in class_1.dict.items():
-    for bin_name_as_key, bin_value in bin_name.items():
-        date_quan = {x[1] for x in bin_value}
-        bin_value_list = []
-        for date in date_quan:
-            quantity = sum([int(x[0]) for x in bin_value if x[1] == date])
-            bin_value_list.append((quantity, date))
-        bin_name[bin_name_as_key] = bin_value_list
-        # print(bin_name[bin_name_as_key])
-        # print(material_code, bin_name_as_key, quantity, date)
 
-pprint(class_1.dict)
+# pprint(dictionary.return_data())
+# pprint(dictionary.return_data_v2())
+
+#
+for material_code, bin_name in dictionary.return_data_v2().items():
+    print(material_code, bin_name)
+    print(" "*8, ['.'.join((str(x)[8:],  str(x)[6:8], str(x)[4:6], str(x)[:4])) for x in bin_name.values()])
+    cprint(f'{(min(bin_name, key=bin_name.get))}', 'red')
+#     for bin_name_as_key, values in bin_name.items():
+#         print(values)
+    #     min()
+
+
+
+# for material_code, bin_name in dictionary.return_data().items():
+#     for bin_name_key, bin_value in bin_name.items():
+#         summ = [x for x in bin_value]
+#         print(summ)
+    #     print(bin_name_key, bin_value)
+
+
+
+
