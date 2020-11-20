@@ -1026,6 +1026,8 @@ class MapCreator:
         date = line[6][:-1]
         quantity = line[4].split(' ')[-1:][0]  # splits and returns the last elem as member of list
         date_reversed = int(''.join((date[-4:], date[-7:-5], date[-10:-8])))  # as the only member so [0]
+        if quantity == '0':
+            return
         self.container.append((material, (bin_pos, (quantity, date_reversed))))
 
 
@@ -1039,14 +1041,6 @@ date_dict = {}
 
 for material_code, value in mat_dict.items():
     date_set = sorted(list({x for x in value}))
-
-    # for date in date_set:
-    #     print(date)
-    #     for index, y in enumerate(date_set):
-    #         print(y, date_set.index(y))
-    #         if y[0] and y[1][1] == date[0] and date[1][1] + 1 or y[0] and y[1][1] == date[0] and date[1][1] - 1:
-    #             del date_set[index]
-    #             print('opa')
     for date in date_set:
         cprint(date_set, 'blue')
         for index_y, y in enumerate(date_set):
@@ -1057,7 +1051,8 @@ for material_code, value in mat_dict.items():
                 print(date_set)
             elif y[1][1] == date[1][1] + 1:
                 date_set[index_y] = (y[0], (y[1][0], date[1][1]))
-    print(date_set)
+                cprint(date_set, 'red')
+
     for date in date_set:
         condition_1 = (date[0], (date[1][0], date[1][1] + 1))
         condition_2 = (date[0], (date[1][0], date[1][1] - 1))
@@ -1065,9 +1060,6 @@ for material_code, value in mat_dict.items():
             if item == date or item == condition_1 or item == condition_2:
                 value[index] = date
 
-
-
-    date_dict.setdefault(material_code, date_set)
 for material_code, value in mat_dict.items():
     mat_dict[material_code] = default_dict_creation(value)
 
@@ -1081,10 +1073,12 @@ for material_code, bin_name in mat_dict.items():
             summ = sum([int(x[0]) for x in value if x[1] == date])
             bin_name[bin_name_l].append((summ, date))
 
+pprint(mat_dict)
+
 for material_code, bin_name in mat_dict.items():
     for bin_name_l, value in bin_name.items():
-        print(bin_name_l, value)
+        if len(value) >= 2:
+            print(material_code, bin_name)
 
 
-pprint(mat_dict)
 
