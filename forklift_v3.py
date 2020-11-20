@@ -11,8 +11,7 @@ def default_dict_creation(list_name):
 
 
 def tuple_to_int(tup):
-    result = int(''.join((str(tup[0]), f'{(tup[1]):0>5}')))
-    return result
+    return int(''.join((str(tup[0]), f'{(tup[1]):0>5}')))
 
 
 def interpreter(word, typ='date'):
@@ -81,8 +80,8 @@ class MapCreator:
                 for index, item in enumerate(value):
                     if item == dat or item == condition_1 or item == condition_2:
                         value[index] = dat
-        for material_code, value in self.dict.items():
-            self.dict[material_code] = default_dict_creation(value)
+        for material_code, bin_name in self.dict.items():
+            self.dict[material_code] = default_dict_creation(bin_name)
 
     def data_return(self):
         self._dictionary()
@@ -103,7 +102,7 @@ fork_map = MapCreator('lx02.txt')
 
 with open('map.txt', 'w', encoding='utf8') as map_file:
     for key, value in fork_map.data_return().items():
-        print(key, [f"{y} ({interpreter(str(value.get(x)), 'reverse')})" for x in value for y in value])
+        print(key, [f"{x} ({interpreter(str(value.get(x)), 'reverse')})" for x in value])
         result = f'\n{(min(value, key=value.get))}'
         dat_quantity = str(value.get(result[1:]))
         dat_interpretation = interpreter(dat_quantity)
