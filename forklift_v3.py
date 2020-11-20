@@ -1029,8 +1029,8 @@ class MapCreator:
         self.container.append((material, (bin_pos, (quantity, date_reversed))))
 
 
-fork_map = MapCreator(path)
-fork_map._look_for_items
+fork_map = MapCreator('lx02.txt')
+
 # pprint(fork_map.container)
 
 mat_dict = default_dict_creation(fork_map.container)
@@ -1038,13 +1038,26 @@ date_dict = {}
 
 
 for material_code, value in mat_dict.items():
-    date_set = sorted((list({x for x in value})))
+    date_set = sorted(list({x for x in value}))
+
+    # for date in date_set:
+    #     print(date)
+    #     for index, y in enumerate(date_set):
+    #         print(y, date_set.index(y))
+    #         if y[0] and y[1][1] == date[0] and date[1][1] + 1 or y[0] and y[1][1] == date[0] and date[1][1] - 1:
+    #             del date_set[index]
+    #             print('opa')
     for date in date_set:
-        for y in date_set:
-            if date_set.index(y) == date_set.index(date):
+        cprint(date_set, 'blue')
+        for index_y, y in enumerate(date_set):
+            if y == date:
                 continue
-            if y[1][1] == date[1][1] + 1 or y[1][1] == date[1][1] - 1:
+            if (y[0], y[1][1]) == (date[0], date[1][1] + 1):
                 date_set.remove(y)
+                print(date_set)
+            elif y[1][1] == date[1][1] + 1:
+                date_set[index_y] = (y[0], (y[1][0], date[1][1]))
+    print(date_set)
     for date in date_set:
         condition_1 = (date[0], (date[1][0], date[1][1] + 1))
         condition_2 = (date[0], (date[1][0], date[1][1] - 1))
@@ -1053,9 +1066,10 @@ for material_code, value in mat_dict.items():
                 value[index] = date
 
 
+
     date_dict.setdefault(material_code, date_set)
-    for material_code, value in mat_dict.items():
-        mat_dict[material_code] = default_dict_creation(value)
+for material_code, value in mat_dict.items():
+    mat_dict[material_code] = default_dict_creation(value)
 
 
 for material_code, bin_name in mat_dict.items():
