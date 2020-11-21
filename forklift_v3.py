@@ -64,31 +64,40 @@ class MapCreator:
     def _dictionary(self):
         self.dict = default_dict_creation(self.container)
         log_file = open('log_file.txt', 'w', encoding='utf8')
-        for material_code, value in self.dict.items():
-            date_set = sorted(list({x for x in value}))  # without sorted func algorithm would work wrong
-            print(date_set)
+        for material_code, value in self.dict.items():   #list убрал
+            date_set = sorted({x for x in value})  # without sorted func algorithm would work wrong
             log_file.write(f'{material_code:_^18}\n')
+            print(date_set)
             for dat in date_set:
                 log_file.write(f'Check {dat[1][1]} in {date_set}\n')
-                for index_y, y in enumerate(date_set):
-                    if y == dat:
+                for index_y, y_dat in enumerate(date_set):
+                    if y_dat == dat:
                         continue
-                    if (y[0], y[1][1]) == (dat[0], dat[1][1] + timedelta(days=1)):
+                    if (y_dat[0], y_dat[1][1]) == (dat[0], dat[1][1] + timedelta(days=1)):
                         date_set[index_y] = dat
-                        # date_set[index_y] = 0
-                        log_file.write(f'{"Removed":18}[{y}]\n{"":18}')
+                        log_file.write(f'{"Removed":20}[{y_dat}]\n{"":20}')
                         log_file.write(f'{date_set}\n')
-                    elif y[1][1] == dat[1][1] + timedelta(days=1):
-                        date_set[index_y] = (y[0], (y[1][0], dat[1][1]))
-                        cprint(date_set, 'red')
-                        log_file.write(f'{"Changed":18}[{y}]\n{"":18}')
+                    elif y_dat[0] != dat[0] and y_dat[1][1] - dat[1][1] == timedelta(days=1):
+                        date_set[index_y] = (y_dat[0], (y_dat[1][0], dat[1][1]))
+                        log_file.write(f'{"Changed":20}[{y_dat}]\n{"":20}')
                         log_file.write(f'{date_set}\n')
-            for dat in date_set:
-                condition_1 = (dat[0], (dat[1][0], dat[1][1] + timedelta(days=1)))
-                condition_2 = (dat[0], (dat[1][0], dat[1][1] - timedelta(days=1)))
-                for index, item in enumerate(value):
-                    if item == dat or item == condition_1 or item == condition_2:
-                        value[index] = dat
+                    elif y_dat[0] == dat[0] and y_dat[1][1] - dat[1][1] > timedelta(days=1):
+                        log_file.write(f'{"":<20}*Much greater date ({y_dat[1][1]}) found in bin {y_dat[0]}\n')
+                        test_list = [x[0] != dat[0] and x[1][1] == dat[1][1] for x in date_set]
+                        print(test_list)
+                        if any(test_list):
+                            log_file.write(f'{"":<20}*Another bin with date ({dat[1][1]}) found\n')
+                            for index, x in enumerate(date_set):
+                                if x == dat:
+                                    log_file.write(f'{"Changed":<20}[{x} to {y_dat}]\n')
+                                    date_set[index] = y_dat
+                            log_file.write(f'{"":<20}{date_set}\n')
+                            print(date_set)
+
+            date_set = sorted(set(date_set))
+            print(date_set)
+            print(material_code,'otsechka')
+
         for material_code, bin_name in self.dict.items():
             self.dict[material_code] = default_dict_creation(bin_name)
         log_file.close()
@@ -108,7 +117,7 @@ class MapCreator:
         return self.dict
 
 
-fork_map = MapCreator('lx05.txt')
+fork_map = MapCreator('lx02.txt')
 
 
 def result(dict):
