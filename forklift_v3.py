@@ -128,7 +128,7 @@ class MapCreator:
         return self.dict
 
 
-fork_map = MapCreator('lx05.txt')
+fork_map = MapCreator('lx02.txt')
 
 
 def result(dict):
