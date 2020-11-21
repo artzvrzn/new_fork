@@ -107,16 +107,27 @@ class MapCreator:
 fork_map = MapCreator('lx02.txt')
 
 
+def result(dict):
+    res = f'{(min(dict, key=dict.get))}'
+    dat_quantity = str(dict.get(res))
+    dat_interpretation = interpreter(dat_quantity)
+    quantity = interpreter(dat_quantity, 'quant')
+    return res, quantity, dat_interpretation
+
+
 with open('map.txt', 'w', encoding='utf8') as map_file:
     for key, bin_value in fork_map.data_return().items():
         print(key, [f"{x} ({interpreter(str(bin_value.get(x)), 'reverse')})" for x in bin_value])
-        result = f'\n{(min(bin_value, key=bin_value.get))}'
-        dat_quantity = str(bin_value.get(result[1:]))
-        dat_interpretation = interpreter(dat_quantity)
-        quantity = interpreter(dat_quantity, 'quant')
-        cprint(f'{result[1:]} {quantity} {dat_interpretation}', 'red')
+        result_1 = result(bin_value)
+        result_2 = ''
+        cprint(f'{result_1[0]} {result_1[1]} {result_1[2]}', 'red')
+        if len(bin_value) >= 2:
+            bin_value.pop(result_1[0])
+            result_2 = result(bin_value)
+            cprint(f'{result_2[0]} {result_2[1]} {result_2[2]}', 'magenta')
         try:
-            map_file.write(f'{result:10} {material_name_dict[key]} ')
+            map_file.write(f'\n{result_1[0]:6} --> {result_2[0]:6} {material_name_dict[key]}' if result_2
+                           else f'\n{result_1[0]:17} {material_name_dict[key]} ')
         except KeyError:
-            map_file.write(f'{result:10} {key}')
+            map_file.write(f'\n{result_1[0]:6} --> {result_2[0]} {key}' if result_2 else f'\n{result_1[0]:17} {key} ')
 
