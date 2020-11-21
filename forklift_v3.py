@@ -66,6 +66,7 @@ class MapCreator:
         log_file = open('log_file.txt', 'w', encoding='utf8')
         for material_code, value in self.dict.items():
             date_set = sorted(list({x for x in value}))  # without sorted func algorithm would work wrong
+            print(date_set)
             log_file.write(f'{material_code:_^18}\n')
             for dat in date_set:
                 log_file.write(f'Check {dat[1][1]} in {date_set}\n')
@@ -73,7 +74,8 @@ class MapCreator:
                     if y == dat:
                         continue
                     if (y[0], y[1][1]) == (dat[0], dat[1][1] + timedelta(days=1)):
-                        date_set.remove(y)
+                        date_set[index_y] = dat
+                        # date_set[index_y] = 0
                         log_file.write(f'{"Removed":18}[{y}]\n{"":18}')
                         log_file.write(f'{date_set}\n')
                     elif y[1][1] == dat[1][1] + timedelta(days=1):
@@ -97,14 +99,16 @@ class MapCreator:
             for bin_name_l, value in bin_name.items():
                 date_set = {x[1] for x in value}
                 bin_name[bin_name_l] = []
-                for dat in date_set:
-                    quant = sum([int(x[0]) for x in value if x[1] == dat])
-                    # bin_name[bin_name_l].append((summ, dat))
-                    bin_name[bin_name_l] = tuple_to_int(dat, quant)
+                if len(date_set) > 1:
+                    quantity = sum([int(x[0]) for x in value])
+                    bin_name[bin_name_l] = tuple_to_int(max(date_set), quantity)
+                elif len(date_set) == 1:
+                    quantity = sum([int(x[0]) for x in value])
+                    bin_name[bin_name_l] = tuple_to_int(date_set.pop(), quantity)
         return self.dict
 
 
-fork_map = MapCreator('lx02.txt')
+fork_map = MapCreator('lx05.txt')
 
 
 def result(dict):
@@ -117,6 +121,7 @@ def result(dict):
 
 with open('map.txt', 'w', encoding='utf8') as map_file:
     for key, bin_value in fork_map.data_return().items():
+        print(bin_value)
         print(key, [f"{x} ({interpreter(str(bin_value.get(x)), 'reverse')})" for x in bin_value])
         result_1 = result(bin_value)
         result_2 = ''
