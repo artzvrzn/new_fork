@@ -64,7 +64,7 @@ class MapCreator:
     def _dictionary(self):
         self.dict = default_dict_creation(self.container)
         log_file = open('log_file.txt', 'w', encoding='utf8')
-        for material_code, value in self.dict.items():   #list убрал
+        for material_code, value in self.dict.items():
             date_set = sorted({x for x in value})  # without sorted func algorithm would work wrong
             log_file.write(f'{material_code:_^18}\n')
             print(date_set)
@@ -93,11 +93,22 @@ class MapCreator:
                                     date_set[index] = y_dat
                             log_file.write(f'{"":<20}{date_set}\n')
                             print(date_set)
-
+                        else:
+                            log_file.write(f'{"":<20}*Bins with same date not found ({dat[1][1]})\n')
+                            if dat == min(date_set):
+                                date_set[index_y] = dat
+                                log_file.write(f'{"":<20}*Minimum date({dat[1][1]})\n')
+                                log_file.write(f'{"Changed":<20}[{y_dat} to {dat}]\n')
+                            else:
+                                log_file.write(f'{"":<20}*Value is not the smallest({dat[1][1]})\n')
+                                log_file.write(f'{"":<20}*Next method should change value to ({max(date_set)[1][1]})\n')
             date_set = sorted(set(date_set))
             print(date_set)
-            print(material_code,'otsechka')
-
+            print(material_code, 'otsechka')
+            for dat in date_set:
+                for index, item in enumerate(value):
+                    if item[0] == dat[0]:
+                        value[index] = dat
         for material_code, bin_name in self.dict.items():
             self.dict[material_code] = default_dict_creation(bin_name)
         log_file.close()
@@ -117,7 +128,7 @@ class MapCreator:
         return self.dict
 
 
-fork_map = MapCreator('lx02.txt')
+fork_map = MapCreator('lx05.txt')
 
 
 def result(dict):
