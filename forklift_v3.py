@@ -1,6 +1,7 @@
 from collections import defaultdict
 from termcolor import cprint
 from map_array import new_list, bin_list, material_name_dict
+from datetime import date, timedelta
 
 
 def default_dict_creation(list_name):
@@ -10,8 +11,9 @@ def default_dict_creation(list_name):
     return dict(default_dict)
 
 
-def tuple_to_int(tup):
-    return int(''.join((str(tup[0]), f'{(tup[1]):0>5}')))
+def tuple_to_int(dat, quant):
+    # return int(''.join((str(tup[0]), f'{(tup[1]):0>5}')))
+    return int(''.join((str(dat.strftime('%Y%m%d')), f'{quant:0>5}')))
 
 
 def interpreter(word, typ='date'):
@@ -54,7 +56,7 @@ class MapCreator:
         bin_pos = line[5]
         dat = line[6][:-1]
         bin_quantity = line[4].split(' ')[-1:][0]  # splits and returns the last elem as member of list
-        date_reversed = int(''.join((dat[-4:], dat[-7:-5], dat[-10:-8])))  # as the only member so [0]
+        date_reversed = date(int(dat[-4:]), int(dat[-7:-5]), int(dat[-10:-8]))  # as the only member so [0]
         if bin_quantity == '0':
             return
         self.container.append((material, (bin_pos, (bin_quantity, date_reversed))))
@@ -64,25 +66,24 @@ class MapCreator:
         log_file = open('log_file.txt', 'w', encoding='utf8')
         for material_code, value in self.dict.items():
             date_set = sorted(list({x for x in value}))  # without sorted func algorithm would work wrong
-            # TODO resolve transition from month to month in bins
             log_file.write(f'{material_code:_^18}\n')
             for dat in date_set:
                 log_file.write(f'Check {dat[1][1]} in {date_set}\n')
                 for index_y, y in enumerate(date_set):
                     if y == dat:
                         continue
-                    if (y[0], y[1][1]) == (dat[0], dat[1][1] + 1):
+                    if (y[0], y[1][1]) == (dat[0], dat[1][1] + timedelta(days=1)):
                         date_set.remove(y)
                         log_file.write(f'{"Removed":18}[{y}]\n{"":18}')
                         log_file.write(f'{date_set}\n')
-                    elif y[1][1] == dat[1][1] + 1:
+                    elif y[1][1] == dat[1][1] + timedelta(days=1):
                         date_set[index_y] = (y[0], (y[1][0], dat[1][1]))
                         cprint(date_set, 'red')
                         log_file.write(f'{"Changed":18}[{y}]\n{"":18}')
                         log_file.write(f'{date_set}\n')
             for dat in date_set:
-                condition_1 = (dat[0], (dat[1][0], dat[1][1] + 1))
-                condition_2 = (dat[0], (dat[1][0], dat[1][1] - 1))
+                condition_1 = (dat[0], (dat[1][0], dat[1][1] + timedelta(days=1)))
+                condition_2 = (dat[0], (dat[1][0], dat[1][1] - timedelta(days=1)))
                 for index, item in enumerate(value):
                     if item == dat or item == condition_1 or item == condition_2:
                         value[index] = dat
@@ -97,9 +98,9 @@ class MapCreator:
                 date_set = {x[1] for x in value}
                 bin_name[bin_name_l] = []
                 for dat in date_set:
-                    summ = sum([int(x[0]) for x in value if x[1] == dat])
+                    quant = sum([int(x[0]) for x in value if x[1] == dat])
                     # bin_name[bin_name_l].append((summ, dat))
-                    bin_name[bin_name_l] = tuple_to_int((dat, summ))
+                    bin_name[bin_name_l] = tuple_to_int(dat, quant)
         return self.dict
 
 
