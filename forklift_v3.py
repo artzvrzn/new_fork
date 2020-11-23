@@ -151,8 +151,9 @@ with open('map.txt', 'w', encoding='utf8') as map_file:
             result_2 = result(bin_value)
             cprint(f'{result_2[0]} {result_2[1]} {result_2[2]}', 'magenta')
         try:
-            map_file.write(f'\n{result_1[0]:6} --> {result_2[0]:6} {material_name_dict[key]}' if result_2
-                           else f'\n{result_1[0]:17} {material_name_dict[key]} ')
+            map_file.write(f'\n{result_1[0]:6} --> {result_2[0]:6} {material_name_dict[key]:<40} {result_1[2]} --> '
+                           f'{result_2[2]}' if result_2 else f'\n{result_1[0]:17} {material_name_dict[key]:<40} {result_1[2]}')
         except KeyError:
             map_file.write(f'\n{result_1[0]:6} --> {result_2[0]} {key}' if result_2 else f'\n{result_1[0]:17} {key} ')
+
 
